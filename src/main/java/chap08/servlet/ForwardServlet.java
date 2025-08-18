@@ -2,10 +2,6 @@ package chap08.servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -16,7 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import chap08.dto.BurgerDTO;
+import chap08.dto.DepartmentDTO;
 import chap08.dto.EmployeeDto;
+import chap08.servlet.dao.BurgerDAO;
+import chap08.servlet.dao.DepartmentDAO;
 import chap08.servlet.dao.EmployeeDao;
 import chap08.servlet.dao.OjdbcConnector;
 
@@ -44,58 +44,79 @@ public class ForwardServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		// 이곳에 접속하면 DB로부터 모든 사원들의 정보를 꺼내서 콘솔에 출력해보세요
 		
-		EmployeeDao employeeDao = new EmployeeDao(conn);
-		List<EmployeeDto> empList = employeeDao.getAll();
-		System.out.println(empList);
-		req.setAttribute("employees", empList);
-		req.getRequestDispatcher("/WEB-INF/views/emp/emp_list.jsp").forward(req, resp);
+		// 1. 일단 uri를 확인 (어떤 DB에서 꺼낼지, 어디로 포워드 할지 결정됨)
+		// 2. DB에서 데이터를 꺼냄 (하고 싶은 처리를 함, 비지니스 로직)
+		// 3. 꺼낸 데이터를 실어놓음
+		// 4. 포워드
 		
+		req.setCharacterEncoding("UTF-8");
 		
-//		String sql = "SELECT * FROM employees";
-//		try (PreparedStatement pstmt = dbConnector().prepareStatement(sql);
-//				ResultSet rs = pstmt.executeQuery()) 
-//		{
-//			ResultSetMetaData metaData = rs.getMetaData();
-//			int columnCount = metaData.getColumnCount();
-//			
-//			String[] columnLables = new String[columnCount];
-//			String[] columnTypeNames = new String[columnCount];
-//			
-//			for (int i = 1; i <= columnCount; i++) {
-//				columnLables[i-1] = metaData.getColumnLabel(i);
-//				columnTypeNames[i-1] = metaData.getColumnTypeName(i);
-//			}
-//			
-//			while (rs.next()) {
-//				for (int i = 0; i < columnCount; i++) {
-//					System.out.printf("[%s: %s]" + (i == columnCount-1 ? "" : " & "),
-//							columnLables[i] , rs.getString(columnLables[i]));
-//				}
-//				System.out.println();
-//			}
-//			
-//			
-//			
-//		} catch (SQLException | ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
+		String method = req.getMethod();
+		String contextPath = req.getContextPath();
+		String uri = req.getRequestURI().substring(contextPath.length());
 		
+		if (uri.equals("/employees/list")) {
+			EmployeeDao employeeDao = new EmployeeDao(conn);
+			List<EmployeeDto> empList = employeeDao.getAll();
+			req.setAttribute("employees", empList);
+			req.getRequestDispatcher("/WEB-INF/views/emp/emp_list.jsp").forward(req, resp);
+		
+		} else if (uri.equals("/departments/list")) {
+			DepartmentDAO depDAO = new DepartmentDAO(conn);
+			List<DepartmentDTO> depList = depDAO.getAllDeps();
+			req.setAttribute("departments", depList);
+			req.getRequestDispatcher("/WEB-INF/views/dep/dep_list.jsp").forward(req, resp);
+		
+		} else if (uri.equals("/burgers/list")) {
+			BurgerDAO burgerDAO = new BurgerDAO(conn);
+			List<BurgerDTO> burgerList = burgerDAO.getAllBurgers();
+			req.setAttribute("burgers", burgerList);
+			req.getRequestDispatcher("/WEB-INF/views/burger/burger_list.jsp").forward(req, resp);
+		
+		} else if (uri.equals("/burgers/add")) {
+			if (method.equals("GET")) {
+				req.getRequestDispatcher("/WEB-INF/views/burger/add.jsp").forward(req, resp);				
+			} else if (method.equals("POST")) {
+				
+				BurgerDAO burgerDAO = new BurgerDAO(conn);
+				BurgerDTO burgerDTO = new BurgerDTO(
+							// id가 있다면 null로 받고 시퀀스로 추가
+							// 이전에 null체크를 반드시 수행해야한다!! (생략)
+							req.getParameter("name"),
+							Integer.parseInt(req.getParameter("price")),
+							req.getParameter("taste")
+						);
+				burgerDAO.addBurger(burgerDTO);
+				resp.sendRedirect(contextPath + "/burgers/list");
+				
+//				"사용자가 POST 요청 후 새로고침 시 같은 요청이 반복되어 
+//				중복 데이터가 저장되는 문제를 방지하기 위해, 
+//				PRG(Post-Redirect-Get) 패턴을 사용합니다. 
+//				이는 POST 요청 처리 후 sendRedirect()로 
+//				GET 요청을 유도함으로써 브라우저가 안전하게 새로고침할 수 있도록 합니다."
+			} 
+			
+		} else {
+			resp.sendRedirect(contextPath + "/index.jsp");
+		}
+	
 		
 	}
 	
 	
-	
-	
-//	private static Connection dbConnector() throws ClassNotFoundException, SQLException {
-//		
-//			Class.forName("oracle.jdbc.driver.OracleDriver");
-//			Connection conn = DriverManager.getConnection(
-//						  "jdbc:oracle:thin:@127.0.0.1:1521:XE", "hr", "1234");
-//			return conn;
-//			
-//	}
+	@Override
+	public void destroy() {
+		// 서블릿이 파괴될 때 (서버 내릴 때)
+		try {
+			if (conn != null) {
+				conn.close();
+				System.out.println("DB연결 해제!");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
 	

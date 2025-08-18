@@ -1,0 +1,64 @@
+package chap08.servlet.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import chap08.dto.BurgerDTO;
+
+public class BurgerDAO {
+	Connection conn;
+	
+	public BurgerDAO(Connection conn) {
+		this.conn = conn;
+	}
+	
+	public List<BurgerDTO> getAllBurgers() {
+		
+		try (
+				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM burgers");
+				ResultSet rs = pstmt.executeQuery();
+				) {
+			
+			List<BurgerDTO> burgers = new ArrayList<>();
+			
+			while(rs.next()) {
+				burgers.add(new BurgerDTO(
+						rs.getString("name"),
+						rs.getInt("price"),
+						rs.getString("taste")
+						));
+			}
+			
+			return burgers;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	public int addBurger(BurgerDTO dto) {
+		
+		String sql = "INSERT INTO burgers (name, price, taste) VALUES (?, ?, ?)";
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			
+			pstmt.setString(1, dto.getName());
+			pstmt.setInt(2, dto.getPrice());
+			pstmt.setString(3, dto.getTaste());
+			
+			return pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+		
+	}
+	
+}

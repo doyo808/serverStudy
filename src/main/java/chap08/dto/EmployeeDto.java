@@ -80,7 +80,7 @@ public class EmployeeDto {
 		this.salary = salary;
 	}
 	public Double getCommission_pct() {
-		return commission_pct;
+		return commission_pct == null ? 0 : commission_pct;
 	}
 	public void setCommission_pct(Double commission_pct) {
 		this.commission_pct = commission_pct;

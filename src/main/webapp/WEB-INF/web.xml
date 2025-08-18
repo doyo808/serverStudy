@@ -4,13 +4,31 @@
   <servlet>
   		<servlet-name>forwardServlet</servlet-name>
   		<servlet-class>chap08.servlet.ForwardServlet</servlet-class>  	
-  			
   </servlet>
   
   
 	<servlet-mapping>
 		<servlet-name>forwardServlet</servlet-name>
 		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+  <!-- 리소스 경로는 forwardServlet에 가지 않고 원래대로 동작하도록 매핑 등록 -->
+   <servlet-mapping>
+   		<servlet-name>default</servlet-name>
+   		<url-pattern>/resources/*</url-pattern>
+   </servlet-mapping>
+
+	<!-- 
+		http://localhost:8090/chap08/employee/list 로 가야만 나오게
+		http://localhost:8090/chap08/department/list
+		http://localhost:8090/chap08/job/list
+	-->
+	<servlet>
+  		<servlet-name>forwardServletJob</servlet-name>
+  		<servlet-class>chap08.servlet.ForwardServletJob</servlet-class>  	
+ 	</servlet>
+	<servlet-mapping>
+		<servlet-name>forwardServletJob</servlet-name>
+		<url-pattern>/job/list</url-pattern>
 	</servlet-mapping>
 
 
@@ -26,6 +44,10 @@
  			<param-name>jdbc_password</param-name>
  			<param-value>1234</param-value>
  		</context-param>
+ 		
+ 		
+ 		
+ 
  		
  		
 </web-app>

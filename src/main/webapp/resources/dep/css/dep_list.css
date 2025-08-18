@@ -1,0 +1,22 @@
+@charset "UTF-8";
+
+@charset "UTF-8";
+
+
+.table {
+	width: fit-content;
+}
+.row {
+	display: flex;
+	border: 1px solid black;
+	margin: 3px;
+}
+.row.header {
+	font-size: 20px;
+	font-weight: 600;
+	background-color: lightgray;
+}
+	.row > div {
+		min-width: 200px;
+		margin: 1px -1px 1px 5px;
+	}
