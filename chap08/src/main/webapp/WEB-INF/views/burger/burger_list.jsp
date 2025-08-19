@@ -38,10 +38,12 @@
 			
 			<% for (BurgerDTO b : burgers) { %>
 				<div class ="rows" style="display:flex;">
-					<div><%= b.getName() %></div>
+					<div>
+						<a href="./detail?burger_name=<%=b.getName()%>">	
+						<%= b.getName() %></a>
+					</div>
 					<div><%= b.getPrice() %></div>
 					<div><%= b.getTaste() %></div>
-				
 				
 				</div>	
 			

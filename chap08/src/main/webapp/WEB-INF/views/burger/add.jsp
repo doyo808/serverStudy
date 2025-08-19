@@ -15,8 +15,7 @@
 		
 		<!-- 
 			날짜: <input type="date" name="release_date">라면
-			yyyy-mm-dd로 넘어온다
-			서블릿에서
+			"yyyy-mm-dd"형태로 보낸다 이후 서블릿에서
 			LocalDate ld = LocalDate.parse(request.getParameter("release_date")); 
 			Date d = Date.valueOf(ld); 식으로 DB에 넣을 수 있다
 		 -->

@@ -1,6 +1,7 @@
 package chap08.servlet;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -30,6 +31,10 @@ public class ForwardServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		ServletContext application = config.getServletContext();
+		
+		application.setAttribute("BURGER_PRICES"
+				, new String[] {"2500", "3500", "5000", "5700", "6300"});
+		
 		try {
 			conn = new OjdbcConnector(
 					application.getInitParameter("jdbc_url"),
@@ -55,6 +60,7 @@ public class ForwardServlet extends HttpServlet {
 		String method = req.getMethod();
 		String contextPath = req.getContextPath();
 		String uri = req.getRequestURI().substring(contextPath.length());
+		System.out.println("요청된 uri: " + uri);
 		
 		if (uri.equals("/employees/list")) {
 			EmployeeDao employeeDao = new EmployeeDao(conn);
@@ -85,8 +91,7 @@ public class ForwardServlet extends HttpServlet {
 							// 이전에 null체크를 반드시 수행해야한다!! (생략)
 							req.getParameter("name"),
 							Integer.parseInt(req.getParameter("price")),
-							req.getParameter("taste")
-						);
+							req.getParameter("taste"));
 				burgerDAO.addBurger(burgerDTO);
 				resp.sendRedirect(contextPath + "/burgers/list");
 				
@@ -96,6 +101,52 @@ public class ForwardServlet extends HttpServlet {
 //				이는 POST 요청 처리 후 sendRedirect()로 
 //				GET 요청을 유도함으로써 브라우저가 안전하게 새로고침할 수 있도록 합니다."
 			} 
+		
+		} else if (uri.equals("/burgers/detail")) {
+			BurgerDAO dao = new BurgerDAO(conn);
+			
+			String burger_name = req.getParameter("burger_name");
+			BurgerDTO burger = dao.get(burger_name);
+			
+			req.setAttribute("burger", burger);
+			req.getRequestDispatcher("/WEB-INF/views/burger/detail.jsp").forward(req, resp);
+		
+		} else if (uri.equals("/burgers/modify")) {
+			if (method.equals("GET")) {
+				BurgerDAO dao = new BurgerDAO(conn);
+				
+				String burger_name = req.getParameter("burger_name");
+				BurgerDTO burger = dao.get(burger_name);
+				req.setAttribute("burger", burger);
+				req.getRequestDispatcher("/WEB-INF/views/burger/modify.jsp").forward(req, resp);				
+			
+			} else if (method.equals("POST")) {
+				// 받은 정보를 DB에 반영하고 상세정보 페이지로 리다이렉트
+				BurgerDAO dao = new BurgerDAO(conn);
+				BurgerDTO dto = new BurgerDTO(
+									req.getParameter("name"),
+									Integer.parseInt(req.getParameter("price")),
+									req.getParameter("taste"));
+				dao.update(dto);
+				
+				String encoded_name = URLEncoder.encode(dto.getName(), "UTF-8");
+				resp.sendRedirect(contextPath + "/burgers/detail?burger_name=" + encoded_name);
+			}
+		
+		} else if (uri.equals("/burgers/delete")) {
+			BurgerDAO dao = new BurgerDAO(conn);
+			String burger_name = req.getParameter("burger_name");
+			BurgerDTO burger = dao.get(burger_name);
+			
+			
+			System.out.println("삭제할 버거:" + burger);
+			
+			int affectedRows = dao.delete(burger);
+			if (affectedRows > 0) { System.out.println("삭제성공"); }
+			else { System.out.println("삭제실패"); }
+			
+			resp.sendRedirect(contextPath + "/burgers/list");
+			
 			
 		} else {
 			resp.sendRedirect(contextPath + "/index.jsp");

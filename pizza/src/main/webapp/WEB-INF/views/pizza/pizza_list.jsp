@@ -5,7 +5,11 @@
 	if (request.getAttribute("pizzas") != null) {
 		pizzas = (List<PizzaDTO>)request.getAttribute("pizzas");
 	}
-
+	
+	int affectedRows = 0;
+	if (request.getAttribute("rows") != null) {	
+		affectedRows = (int)request.getAttribute("rows"); 
+	}
 %>
 <!DOCTYPE html>
 <html>
@@ -21,6 +25,9 @@
 			min-width: 150px;
 			margin: 10px;
 			border: 1px solid black;
+		}
+		.zero {
+			display: none;
 		}
 	</style>
 </head>
@@ -40,17 +47,26 @@
 			
 			<% for (PizzaDTO p : pizzas) { %>
 				<div class="rows">
-					<div><%= p.getPizza_id() %></div>
+					<div>
+						<a href="./detail?pizza_id=<%=p.getPizza_id()%>">
+						<%= p.getPizza_id() %></a>
+					</div>
 					<div><%= p.getPizza_name() %></div>
-					<div><%= p.getMade_date() %></div>
+					<div>
+						<a href="./deleteAll?made_date=<%=p.getMade_date()%>"
+						   onclick="return(window.confirm('<%=p.getMade_date()%>에 만든 피자들을 모두 삭제하시겠습니까?'))">
+						<%= p.getMade_date() %></a>
+					</div>
 				</div>
 			<% } %>
 		
 		<% } %>
 		
 	</div>
-	<button>새 피자 만들기</button>
+	<button onclick="moveTo('/Pizza/add')" autofocus>새 피자 만들기</button>
+	<div id="affectedRowsDiv">삭제된 행의 수 : <%=affectedRows %></div>
 	
-	<script src="Pizza/resources/pizza/pizza_list.js"></script>
+	<script> var affectedRows = Number(<%=affectedRows%>)</script>
+	<script src="/Pizza/resources/pizza/pizza_list3.js"></script>
 </body>
 </html>
