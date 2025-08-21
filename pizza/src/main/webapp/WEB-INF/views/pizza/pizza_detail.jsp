@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8" import="dto.PizzaDTO"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 	String contextPath = request.getContextPath();
 	
@@ -23,19 +24,22 @@
 	<form id="pizzaForm" action="./modify" method="POST">
 	<div>
 		<div>ID</div>
-		<input type="text" name="pizza_id" value="<%=pizza.getPizza_id()%>" readonly>
+		<input type="text" name="pizza_id" value="${pizza.pizza_id }" readonly>
 		<div>Name</div>
-		<input type="text" name="pizza_name" value="<%=pizza.getPizza_name()%>">
+		<input type="text" name="pizza_name" value="${pizza.pizza_name }">
 		<div>Made_date</div>
-		<input type="date" name="made_date" value="<%=pizza.getMade_date()%>">
+		<input type="date" name="made_date" value="${pizza.made_date }">
 	</div>
 	</form> <hr>
 	
+	<c:url value="./delete?pizza_id=${pizza.pizza_id }" var="pizza_delete"/>
+	
 	<button type="submit" form="pizzaForm" onclick="return(window.confirm('진짜?'))">수정</button>
-	<button onclick="confirmUrl('./delete?pizza_id=<%=pizza.getPizza_id()%>')">삭제</button>
+	<button onclick="confirmUrl('${pizza_delete}')">삭제</button>
 	<button onclick="location.href='./list'">목록</button>
 	
-	<script src="<%=contextPath%>/resources/pizza/detail.js"></script>
+	
+	<script src="<c:url value="/resources/pizza/detail.js"/>"></script>
 	
 </body>
 </html>

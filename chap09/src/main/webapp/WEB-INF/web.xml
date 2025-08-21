@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
+  <display-name>chap09</display-name>
+  
+  <servlet>
+  		<servlet-name>frontController</servlet-name>
+  		<servlet-class>shark.servlet.FrontController</servlet-class>
+  		<init-param>
+  			<param-name>encoding</param-name>
+  			<param-value>UTF-8</param-value>
+  		</init-param>
+  </servlet>
+ 
+  
+  <!-- 1. /assets/는 원래경로로 보내고 -->
+  <servlet-mapping>
+  		<servlet-name>default</servlet-name>
+  		<url-pattern>/assets/*</url-pattern>
+  </servlet-mapping>
+  
+  
+  <!-- 2. /WEB-INF/views/ 밑에 있는 .jsp들은 jsp서블릿(jps를 해석하는 서블릿)으로 매핑 -->
+  <servlet-mapping>
+  		<servlet-name>jsp</servlet-name>
+  		<url-pattern>/WEB-INF/views/*</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 3. 그 외 .jsp들은 그냥 접속을 시도한 것으로 간주하여 frontController로 매핑 -->
+  <servlet-mapping>
+  		<servlet-name>frontController</servlet-name>
+  		<url-pattern>*.jsp</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 4. 위의 매핑들에 해당하지 않는 나머지 요청들은 모두 frontController로 매핑 -->
+  <servlet-mapping>
+  		<servlet-name>frontController</servlet-name>
+  		<url-pattern>/</url-pattern>
+  </servlet-mapping>
+  
+  
+  <!-- 필터선언/ 매핑 -->
+  
+  <filter>
+  		<filter-name>encodingFilter</filter-name>
+  		<filter-class>shark.filter.CharacterEncodingFilter</filter-class>
+  		<init-param>
+  			<param-name>encoding</param-name>
+  			<param-value>UTF-8</param-value>
+  		</init-param>
+  </filter>
+  
+  <filter-mapping>
+  		<filter-name>encodingFilter</filter-name>
+  		<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  
+  <filter>
+  		<filter-name>myFilter1</filter-name>
+  		<filter-class>shark.filter.MyFilter1</filter-class>
+  		
+  		<init-param>
+  			<param-name>initValue</param-name>
+  			<param-value>10</param-value>
+  		</init-param>
+  </filter>
+  
+  <filter-mapping>
+  		<filter-name>myFilter1</filter-name>
+  		<url-pattern>/el_jstl/jstl</url-pattern>
+  </filter-mapping>
+  
+  
+  <!-- 리스너 추가하는 곳 -->
+  <listener>
+  		<listener-class>shark.listener.ContextLoaderListener</listener-class>
+  </listener>
+  
+  <listener>
+  		<listener-class>shark.listener.ContextAttributeListener</listener-class>
+  </listener>
+  
+  <context-param>
+  		<param-name>db_url</param-name>
+  		<param-value>jdbc:oracle:thin://localhost:1521:XE</param-value>
+  </context-param>
+  
+</web-app>

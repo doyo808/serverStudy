@@ -1,0 +1,6 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<c:url value="/assets/css/file_include.css" var="css_path"/>
+
+<script src="https://kit.fontawesome.com/df2bfc0a98.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="${css_path }">

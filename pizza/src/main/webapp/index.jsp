@@ -8,5 +8,6 @@
 </head>
 <body>
 	<h3>이곳은 피자 메인입니다.</h3>
+	<button onclick="location.href='./list'">피자 목록</button>
 </body>
 </html>
